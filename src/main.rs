@@ -1,18 +1,24 @@
 use reqwest::{header, Client};
 use url::Url;
+use structopt::StructOpt;
+use serde_json::json;
 
 use akamai::{authorization_header, HttpMethod};
 
-fn main() {
-    let body = r#"
-        {
-            "objects": [
-                "catalog"
-            ]
-        }
-    "#;
 
-    dbg!(&body);
+#[derive(Debug, StructOpt)]
+struct Opt {
+    tags_to_purge: Vec<String>,
+}
+
+fn main() {
+    let opt = Opt::from_args();
+
+    let body = json!(
+        {
+            "objects": opt.tags_to_purge
+        }
+    ).to_string();
 
     let access_token = env!("ACCESS_TOKEN");
     let client_token = env!("CLIENT_TOKEN");
@@ -41,8 +47,6 @@ fn main() {
         .body(body)
         .build()
         .unwrap();
-
-    dbg!(&req);
 
     let mut res = client.execute(req).unwrap();
 
