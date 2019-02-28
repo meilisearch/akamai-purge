@@ -4,13 +4,13 @@ use url::Url;
 use akamai::{authorization_header, HttpMethod};
 
 fn main() {
-    let body = r##"
+    let body = r#"
         {
             "objects": [
                 "catalog"
             ]
         }
-    "##;
+    "#;
 
     dbg!(&body);
 
