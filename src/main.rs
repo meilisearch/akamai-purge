@@ -1,10 +1,6 @@
-use reqwest::{header, Client};
-use url::Url;
 use structopt::StructOpt;
-use serde_json::json;
 
-use akamai::{authorization_header, HttpMethod};
-
+use akamai::purge_tag;
 
 #[derive(Debug, StructOpt)]
 struct Opt {
@@ -14,42 +10,8 @@ struct Opt {
 fn main() {
     let opt = Opt::from_args();
 
-    let body = json!(
-        {
-            "objects": opt.tags_to_purge
-        }
-    ).to_string();
-
-    let access_token = env!("ACCESS_TOKEN");
-    let client_token = env!("CLIENT_TOKEN");
-    let client_secret = env!("CLIENT_SECRET");
-
-    let client = Client::builder().build().unwrap();
-
-    let base = "https://akab-v6etn6gnkjrsrkuu-ivl4pk6pkkr3yfox.purge.akamaiapis.net";
-    let url_string = format!("{}/ccu/v3/invalidate/tag/{}", base, "production");
-    let url = Url::parse(&url_string).unwrap();
-
-    let auth_data =
-        authorization_header(
-            HttpMethod::Post,
-            &url,
-            Some(body.as_bytes()),
-            access_token,
-            client_token,
-            client_secret
-        );
-
-    let req = client
-        .post(url)
-        .header(header::AUTHORIZATION, auth_data)
-        .header(header::CONTENT_TYPE, "application/json")
-        .body(body)
-        .build()
-        .unwrap();
-
-    let mut res = client.execute(req).unwrap();
-
-    println!("{:#?}", res);
-    println!("{}", res.text().unwrap());
+    match purge_tag(opt.tags_to_purge.clone()) {
+        Ok(_) => println!("Tags {:?} purged !", opt.tags_to_purge),
+        Err(err) => eprintln!("Impossible to purge cache tagged as {:?}; {}", opt.tags_to_purge, err)
+    }
 }

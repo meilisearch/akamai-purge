@@ -1,7 +1,11 @@
+use std::error::Error;
 use std::fmt;
+use std::env;
 
 use chrono::prelude::*;
 use hmac::{Hmac, Mac};
+use reqwest::{header, Client};
+use serde_json::json;
 use sha2::{Sha256, Digest};
 use url::Url;
 use uuid::Uuid;
@@ -85,4 +89,48 @@ pub fn authorization_header(
     auth_data.push_str(&format!("signature={}", signature));
 
     auth_data
+}
+
+pub fn purge_tag(tags: Vec<String>) -> Result<(), Box<Error>> {
+    let access_token = env::var("AKAMAI_ACCESS_TOKEN")?;
+    // println!("AKAMAI_ACCESS_TOKEN");
+    let client_token = env::var("AKAMAI_CLIENT_TOKEN")?;
+    // println!("AKAMAI_CLIENT_TOKEN");
+    let client_secret = env::var("AKAMAI_CLIENT_SECRET")?;
+    // println!("AKAMAI_ClIENT_SECRET");
+    let url = env::var("AKAMAI_URL")?;
+    // println!("AKAMAI_URL");
+
+    let body = json!(
+        {
+            "objects": tags
+        }
+    ).to_string();
+
+    let client = Client::builder().build()?;
+
+    let url_string = format!("{}/ccu/v3/invalidate/tag/{}", url, "production");
+    let url = Url::parse(&url_string)?;
+
+
+    let auth_data =
+        authorization_header(
+            HttpMethod::Post,
+            &url,
+            Some(body.as_bytes()),
+            &access_token,
+            &client_token,
+            &client_secret
+        );
+
+    let req = client
+        .post(url)
+        .header(header::AUTHORIZATION, auth_data)
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(body)
+        .build()?;
+
+    let _ = client.execute(req)?;
+
+    Ok(())
 }
