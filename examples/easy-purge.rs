@@ -1,6 +1,5 @@
 use structopt::StructOpt;
-
-use akamai::purge_tag;
+use akamai_purge::purge_tag;
 
 #[derive(Debug, StructOpt)]
 struct Opt {

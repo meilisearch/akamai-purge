@@ -1,5 +1,5 @@
 [package]
-name = "akamai"
+name = "akamai-purge"
 version = "0.1.0"
 authors = ["Clément Renault <renault.cle@gmail.com>"]
 edition = "2018"
@@ -12,5 +12,7 @@ reqwest = "0.9.10"
 sha2 = "0.8.0"
 url = "1.7.2"
 uuid = "0.7.2"
-structopt = "0.2.14"
 serde_json = "1.0.39"
+
+[dev-dependencies]
+structopt = "0.2.14"
