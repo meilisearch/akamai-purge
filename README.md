@@ -1,4 +1,10 @@
-# akamai-purge
+# [DEPRECATED] akamai-purge
+
+---
+
+⚠️ This repository has been archived.
+
+---
 
 ```
 export AKAMAI_ACCESS_TOKEN=xxx
